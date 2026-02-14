@@ -1,335 +1,164 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Siem Reap Trip Planner｜暹粒旅行计划</title>
-  <meta name="description" content="暹粒旅行网站：计划表、地点资料库（中英双语）、美食资料库、参考链接（官方优先）与地图视图。">
-  <style>
-    :root{
-      --bg:#f7f1e4;--card:#fffaf0;--card-2:#fff3d6;--ink:#2f2a21;--sub:#6e6049;
-      --line:#dcc79f;--accent:#b45f06;--accent-2:#0f766e;--chip:#f3e4bf;--chip-ink:#5a492f;
-      --shadow:0 10px 24px rgba(84,64,23,.12);--radius:16px;--max:1160px;--tab-h:58px;
-    }
-    *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:radial-gradient(circle at 20% 6%, #fff8e8 0, #f7f1e4 35%, #f4ecd9 100%);
-      color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei","Noto Sans",sans-serif;line-height:1.65}
-    a{color:var(--accent-2);text-decoration:none}a:hover{text-decoration:underline}
-    .wrap{max-width:var(--max);margin:0 auto;padding:16px}
-    .hero{background:linear-gradient(145deg,#fff8e8,#fff2cc);border:1px solid var(--line);border-radius:22px;padding:18px 18px 16px;
-      box-shadow:var(--shadow);position:relative;overflow:hidden}
-    .hero::before{content:"";position:absolute;right:-70px;top:-70px;width:220px;height:220px;border-radius:50%;
-      background:radial-gradient(circle,#eec46e55,#0000 70%);pointer-events:none}
-    h1{margin:0 0 8px;font-size:clamp(22px,4vw,34px);line-height:1.25}
-    .subtitle{margin:0;color:var(--sub)}
-    .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-    .chip{padding:6px 10px;border-radius:999px;background:var(--chip);border:1px solid #d8bc7c;color:var(--chip-ink);font-size:13px}
-    .tabbar{position:sticky;top:0;z-index:30;margin-top:12px;background:#fff9eaee;backdrop-filter:blur(8px);
-      border:1px solid var(--line);border-radius:14px;padding:8px;box-shadow:0 6px 16px rgba(78,58,20,.08)}
-    .tab-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-    .tab-btn{border:1px solid #d8bf86;background:#fff4d8;color:#5b4b2d;border-radius:10px;padding:10px 8px;font-size:14px;cursor:pointer}
-    .tab-btn.active{background:linear-gradient(180deg,#f0bb57,#e4a63a);border-color:#c68c2a;color:#2d230f;font-weight:700}
-    main{margin-top:14px}
-    .section{scroll-margin-top:calc(var(--tab-h) + 18px);margin-bottom:14px;background:var(--card);border:1px solid var(--line);
-      border-radius:16px;box-shadow:var(--shadow);padding:14px}
-    .section h2{margin:0 0 8px;font-size:24px}.section p.lead{margin:0 0 12px;color:var(--sub)}
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .panel{border:1px solid #e5cf9f;background:#fff7e7;border-radius:12px;padding:10px}
-    .label{display:inline-block;background:#f8e3b5;border:1px solid #dcb779;color:#5a4724;padding:3px 8px;border-radius:999px;font-size:12px;margin-bottom:6px}
-    .toggle{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
-    .btn{border:1px solid #d5b77f;background:#fff1cf;color:#5f4b27;border-radius:10px;padding:8px 12px;cursor:pointer;font-size:14px}
-    .btn.active{background:#1f8a78;color:#fff;border-color:#157264;font-weight:700}
-    .day-list{display:grid;gap:10px}.day{border:1px solid #e4cca0;background:#fff8ea;border-radius:12px;padding:10px}
-    .day h3{margin:0 0 6px;font-size:18px}.muted{color:var(--sub)}
-    ul{margin:8px 0 0 1.2em}li{margin:4px 0}
-    .bilingual strong{color:#4a3a1f}.bilingual .en{color:#6b5a3f}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
-    .search{width:min(380px,100%);max-width:100%;border:1px solid #d7bc87;background:#fff9e9;color:#2f2a21;border-radius:10px;padding:9px 10px;font-size:14px}
-    .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-    .card{border:1px solid #e1ca99;background:#fff8e7;border-radius:12px;padding:10px}
-    .card h4{margin:0 0 4px;font-size:17px;line-height:1.3}.card .name-en{color:#6f5d3f;font-size:14px}
-    .meta-line{font-size:13px;color:#6d604a;margin-top:4px}
-    .links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-    .link{font-size:12px;border:1px solid #c8aa70;background:#f8e8bf;color:#5a4624;border-radius:999px;padding:4px 8px;display:inline-flex}
-    .refs-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-    .warn{border:1px solid #e6bb6f;background:#fff3d8;padding:10px;border-radius:12px;color:#6b4e1f;font-size:13px}
-    .footer{margin-top:10px;font-size:13px;color:#736247}
-    @media (max-width:920px){.tab-row{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header class="hero">
-      <h1>暹粒旅行计划｜Siem Reap Trip Planner</h1>
-      <p class="subtitle">独旅 · 住 Onederz Siem Reap · 柬埔寨浅色风格 · 中英双语资料库</p>
-      <div class="meta">
-        <span class="chip">去程夜巴 Departure: 2026-02-14 22:30 · PNH → SRP</span>
-        <span class="chip">回程夜巴 Return: 2026-02-21 23:00 · SRP → PNH</span>
-        <span class="chip">住宿 Stay: Onederz Siem Reap（6晚）</span>
-      </div>
-    </header>
+diff --git a/index.html b/index.html
+index 0769467ea7ca8334213201ebb22b6e5f2b70f6b2..2f398246f9cabc8ec738e27b2a3fac4f3c0cd768 100644
+--- a/index.html
++++ b/index.html
+@@ -39,117 +39,123 @@
+     .toggle{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 10px}
+     .btn{border:1px solid #d5b77f;background:#fff1cf;color:#5f4b27;border-radius:10px;padding:8px 12px;cursor:pointer;font-size:14px}
+     .btn.active{background:#1f8a78;color:#fff;border-color:#157264;font-weight:700}
+     .day-list{display:grid;gap:10px}.day{border:1px solid #e4cca0;background:#fff8ea;border-radius:12px;padding:10px}
+     .day h3{margin:0 0 6px;font-size:18px}.muted{color:var(--sub)}
+     ul{margin:8px 0 0 1.2em}li{margin:4px 0}
+     .bilingual strong{color:#4a3a1f}.bilingual .en{color:#6b5a3f}
+     .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+     .search{width:min(380px,100%);max-width:100%;border:1px solid #d7bc87;background:#fff9e9;color:#2f2a21;border-radius:10px;padding:9px 10px;font-size:14px}
+     .grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+     .card{border:1px solid #e1ca99;background:#fff8e7;border-radius:12px;padding:10px}
+     .card h4{margin:0 0 4px;font-size:17px;line-height:1.3}.card .name-en{color:#6f5d3f;font-size:14px}
+     .meta-line{font-size:13px;color:#6d604a;margin-top:4px}
+     .links{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+     .link{font-size:12px;border:1px solid #c8aa70;background:#f8e8bf;color:#5a4624;border-radius:999px;padding:4px 8px;display:inline-flex}
+     .refs-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+     .warn{border:1px solid #e6bb6f;background:#fff3d8;padding:10px;border-radius:12px;color:#6b4e1f;font-size:13px}
+     .footer{margin-top:10px;font-size:13px;color:#736247}
+     @media (max-width:920px){.tab-row{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}}
+   </style>
+ </head>
+ <body>
+   <div class="wrap">
+     <header class="hero">
+       <h1>暹粒旅行计划｜Siem Reap Trip Planner</h1>
+-      <p class="subtitle">独旅 · 住 Onederz Siem Reap · 柬埔寨浅色风格 · 中英双语资料库</p>
++      <p class="subtitle">独旅 · 入住 Onederz Siem Reap · 柬埔寨浅色风格 · 中英双语资料库</p>
+       <div class="meta">
+         <span class="chip">去程夜巴 Departure: 2026-02-14 22:30 · PNH → SRP</span>
+         <span class="chip">回程夜巴 Return: 2026-02-21 23:00 · SRP → PNH</span>
+         <span class="chip">住宿 Stay: Onederz Siem Reap（6晚）</span>
+       </div>
+     </header>
+ 
+     <nav class="tabbar" aria-label="main tabs">
+       <div class="tab-row">
+         <button class="tab-btn active" data-target="plan">计划表 / Plan</button>
+         <button class="tab-btn" data-target="places">地点资料库 / Places</button>
+         <button class="tab-btn" data-target="fooddb">美食资料库 / Food</button>
+         <button class="tab-btn" data-target="refs">参考链接 / References</button>
+         <button class="tab-btn" data-target="alt">备选推荐 / Alternatives</button>
+       </div>
+     </nav>
+ 
+     <main>
+       <section id="plan" class="section">
+-        <h2>计划表｜Plan</h2>
+-        <p class="lead">已按你的夜巴时间重排，避免连续高强度寺庙日。支持一键切换“行程视图 / 地图视图”。</p>
++        <h2>七天计划表｜7-Day Plan</h2>
++        <p class="lead">已按你的夜巴时间重排为七天节奏，包含小圈、大圈、外圈与洞里萨湖日落，避免连续高强度暴走。</p>
+         <div class="toggle">
+           <button id="btnSchedule" class="btn active">行程视图 / Schedule View</button>
+           <button id="btnMap" class="btn">地图视图 / Map View</button>
+         </div>
+         <div id="scheduleView" class="day-list bilingual">
+           <article class="day"><h3>Day 1（2/15）到达恢复 + 老城适应</h3><div class="muted en">Arrival recovery + Old Town orientation</div>
+-            <ul><li><strong>中</strong>：早上到达后先补觉，下午逛 Old Market / Pub Street。</li><li class="en"><strong>EN</strong>: Recover after overnight bus, then explore Old Market / Pub Street in the afternoon.</li>
+-            <li><strong>中</strong>：晚上回青旅社交，低强度收尾。</li><li class="en"><strong>EN</strong>: Keep the first day light and social at the hostel.</li></ul></article>
+-          <article class="day"><h3>Day 2 吴哥小圈核心日</h3><div class="muted en">Small Circuit core highlights</div>
+-            <ul><li><strong>中</strong>：Angkor Wat 日出 → Bayon → Ta Prohm。</li><li class="en"><strong>EN</strong>: Sunrise at Angkor Wat, then Bayon and Ta Prohm.</li>
+-            <li><strong>中</strong>：中午回城午休，减少暴晒和体力消耗。</li><li class="en"><strong>EN</strong>: Return to town at noon for rest and heat management.</li></ul></article>
+-          <article class="day"><h3>Day 3 菜市场 + 在地生活</h3><div class="muted en">Local market + daily life</div>
+-            <ul><li><strong>中</strong>：早上 Phsar Leu 菜市场，观察本地食材与日常采购。</li><li class="en"><strong>EN</strong>: Morning at Phsar Leu market for local produce and everyday life.</li>
+-            <li><strong>中</strong>：下午咖啡馆、河边散步或按摩。</li><li class="en"><strong>EN</strong>: Flexible afternoon: café, riverside walk, or massage.</li></ul></article>
+-          <article class="day"><h3>Day 4 吴哥大圈结构美学</h3><div class="muted en">Grand Circuit architecture day</div>
+-            <ul><li><strong>中</strong>：Preah Khan → Neak Pean → Ta Som。</li><li class="en"><strong>EN</strong>: Visit Preah Khan, Neak Pean, and Ta Som.</li>
+-            <li><strong>中</strong>：回城后安排轻松晚餐。</li><li class="en"><strong>EN</strong>: Easy dinner after returning to town.</li></ul></article>
+-          <article class="day"><h3>Day 5 艺术主题日</h3><div class="muted en">Art-focused day</div>
+-            <ul><li><strong>中</strong>：Small Art School + Khmer Kids Art Gallery。</li><li class="en"><strong>EN</strong>: Small Art School + Khmer Kids Art Gallery.</li>
+-            <li><strong>中</strong>：可选 Artisans Angkor 或 Phare 表演。</li><li class="en"><strong>EN</strong>: Optional Artisans Angkor workshop or Phare show.</li></ul></article>
+-          <article class="day"><h3>Day 6（2/21）弹性日 + 夜巴返程</h3><div class="muted en">Flexible day + night bus return</div>
+-            <ul><li><strong>中</strong>：Banteay Srei / Tonlé Sap / 博物馆三选一。</li><li class="en"><strong>EN</strong>: Choose one: Banteay Srei / Tonlé Sap / museum day.</li>
+-            <li><strong>中</strong>：晚间预留返程缓冲，建议提前到站。</li><li class="en"><strong>EN</strong>: Keep buffer time before departure and arrive early at station.</li></ul></article>
++            <ul><li><strong>中</strong>：早上到达后先补觉，下午逛老市场（Old Market）与酒吧街（Pub Street）。</li><li class="en"><strong>EN</strong>: Recover after arrival, then explore Old Market and Pub Street in the afternoon.</li>
++            <li><strong>中</strong>：晚上回青旅社交，维持低强度节奏。</li><li class="en"><strong>EN</strong>: Keep the first day light and social at the hostel.</li></ul></article>
++          <article class="day"><h3>Day 2 吴哥小圈（核心必看）</h3><div class="muted en">Small Circuit core highlights</div>
++            <ul><li><strong>中</strong>：吴哥窟日出 → 巴戎寺 → 塔普伦寺。</li><li class="en"><strong>EN</strong>: Sunrise at Angkor Wat, then Bayon and Ta Prohm.</li>
++            <li><strong>中</strong>：中午回城午休，傍晚可去皇家花园散步。</li><li class="en"><strong>EN</strong>: Return to town at noon for rest; optional evening walk at Royal Independence Gardens.</li></ul></article>
++          <article class="day"><h3>Day 3 吴哥大圈（结构美学）</h3><div class="muted en">Grand Circuit architecture day</div>
++            <ul><li><strong>中</strong>：圣剑寺 → 涅槃宫 → 塔逊寺 → 东梅奔寺。</li><li class="en"><strong>EN</strong>: Visit Preah Khan, Neak Pean, Ta Som, and East Mebon.</li>
++            <li><strong>中</strong>：回城后安排轻松晚餐，不再加景点。</li><li class="en"><strong>EN</strong>: Keep the evening easy with dinner in town.</li></ul></article>
++          <article class="day"><h3>Day 4 外圈（女王宫 + 近郊）</h3><div class="muted en">Outer Circuit with Banteay Srei</div>
++            <ul><li><strong>中</strong>：上午女王宫，回程可顺访地雷博物馆或本地村镇。</li><li class="en"><strong>EN</strong>: Morning at Banteay Srei; optional Landmine Museum on the way back.</li>
++            <li><strong>中</strong>：下午回城休整，晚上体验高棉餐厅。</li><li class="en"><strong>EN</strong>: Return to town for rest, then enjoy a Khmer dinner.</li></ul></article>
++          <article class="day"><h3>Day 5 艺术与在地生活</h3><div class="muted en">Art + local life</div>
++            <ul><li><strong>中</strong>：小小艺术学校 + 高棉儿童艺术画廊。</li><li class="en"><strong>EN</strong>: Small Art School + Khmer Kids Art Gallery.</li>
++            <li><strong>中</strong>：下午逛普萨路菜市场，补充伴手礼与零食。</li><li class="en"><strong>EN</strong>: Visit Phsar Leu market in the afternoon for local shopping.</li></ul></article>
++          <article class="day"><h3>Day 6 洞里萨湖日落日</h3><div class="muted en">Tonlé Sap sunset day</div>
++            <ul><li><strong>中</strong>：白天放慢节奏，可选博物馆或咖啡馆办公。</li><li class="en"><strong>EN</strong>: Slow daytime pace with optional museum or café time.</li>
++            <li><strong>中</strong>：下午前往空邦鲁或空尼，安排洞里萨湖日落船程。</li><li class="en"><strong>EN</strong>: Head to Kampong Phluk or Chong Kneas for a Tonlé Sap sunset boat ride.</li></ul></article>
++          <article class="day"><h3>Day 7（2/21）收尾采购 + 夜巴返程</h3><div class="muted en">Final shopping + night bus return</div>
++            <ul><li><strong>中</strong>：上午睡到自然醒，下午老城轻松采购与打包。</li><li class="en"><strong>EN</strong>: Sleep in, then do final shopping and packing in Old Town.</li>
++            <li><strong>中</strong>：晚间预留返程缓冲，建议提前到车站。</li><li class="en"><strong>EN</strong>: Keep buffer time before departure and arrive at the station early.</li></ul></article>
+         </div>
+         <div id="mapView" class="day-list" style="display:none">
+           <article class="day"><h3>Day 2 地图快链｜Map Quick Links</h3><div class="links">
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Angkor+Wat">Angkor Wat</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Bayon+Temple">Bayon</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Ta+Prohm">Ta Prohm</a></div></article>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Angkor+Wat">吴哥窟</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Bayon+Temple">巴戎寺</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Ta+Prohm">塔普伦寺</a></div></article>
+           <article class="day"><h3>Day 3 地图快链｜Map Quick Links</h3><div class="links">
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Phsar+Leu+Thom+Thmey">Phsar Leu Market</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Old+Market+Siem+Reap">Old Market</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Pub+Street+Siem+Reap">Pub Street</a></div></article>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Preah+Khan+Temple">圣剑寺</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Neak+Pean">涅槃宫</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Ta+Som+Temple">塔逊寺</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=East+Mebon">东梅奔寺</a></div></article>
+           <article class="day"><h3>Day 4 地图快链｜Map Quick Links</h3><div class="links">
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Preah+Khan+Temple">Preah Khan</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Neak+Pean">Neak Pean</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Ta+Som+Temple">Ta Som</a></div></article>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Banteay+Srei">女王宫</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Cambodia+Landmine+Museum">地雷博物馆</a></div></article>
+           <article class="day"><h3>Day 5 地图快链｜Map Quick Links</h3><div class="links">
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Small+Art+School+Siem+Reap">Small Art School</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Khmer+Kids+Art+Gallery+Siem+Reap">Khmer Kids Art Gallery</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Artisans+Angkor+Siem+Reap">Artisans Angkor</a></div></article>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Small+Art+School+Siem+Reap">小小艺术学校</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Khmer+Kids+Art+Gallery+Siem+Reap">高棉儿童艺术画廊</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Phsar+Leu+Thom+Thmey">普萨路菜市场</a></div></article>
+           <article class="day"><h3>Day 6 地图快链｜Map Quick Links</h3><div class="links">
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Banteay+Srei">Banteay Srei</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Kampong+Phluk">Kampong Phluk</a>
+-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Angkor+National+Museum">Angkor National Museum</a></div></article>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Kampong+Phluk">空邦鲁</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Chong+Kneas">空尼</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Tonle+Sap+Lake">洞里萨湖</a></div></article>
++          <article class="day"><h3>Day 7 地图快链｜Map Quick Links</h3><div class="links">
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Old+Market+Siem+Reap">老市场</a>
++            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Larryta+Express+Siem+Reap">夜巴车站</a></div></article>
+         </div>
+       </section>
+ 
+       <section id="places" class="section">
+         <h2>地点资料库｜Places Database（中英双语）</h2>
+         <p class="lead">已删除 <strong>Khmer Art Studio</strong>。你可以按类别筛选并搜索关键词。</p>
+         <div class="controls">
+           <input id="placeSearch" class="search" placeholder="搜索 Search: 如 市场 / museum / art / temple" />
+           <button class="btn active" data-place-filter="all">全部 All</button>
+           <button class="btn" data-place-filter="temple">寺庙 Temple</button>
+           <button class="btn" data-place-filter="art">艺术 Art</button>
+           <button class="btn" data-place-filter="market">市场 Market</button>
+           <button class="btn" data-place-filter="history">历史 History</button>
+           <button class="btn" data-place-filter="stay">住宿 Stay</button>
+         </div>
+         <div id="placeGrid" class="grid"></div>
+       </section>
+ 
+       <section id="fooddb" class="section">
+         <h2>暹粒美食资料库｜Food Database（中英双语）</h2>
+         <p class="lead">按“本地早餐 / 正餐 / 夜市 / 甜品咖啡”分类，便于现场即查即走。</p>
+         <div class="controls">
+           <input id="foodSearch" class="search" placeholder="搜索 Search: amok / breakfast / market / fine dining" />
+           <button class="btn active" data-food-filter="all">全部 All</button>
+           <button class="btn" data-food-filter="local">本地 Local</button>
 
-    <nav class="tabbar" aria-label="main tabs">
-      <div class="tab-row">
-        <button class="tab-btn active" data-target="plan">计划表 / Plan</button>
-        <button class="tab-btn" data-target="places">地点资料库 / Places</button>
-        <button class="tab-btn" data-target="fooddb">美食资料库 / Food</button>
-        <button class="tab-btn" data-target="refs">参考链接 / References</button>
-        <button class="tab-btn" data-target="alt">备选推荐 / Alternatives</button>
-      </div>
-    </nav>
-
-    <main>
-      <section id="plan" class="section">
-        <h2>计划表｜Plan</h2>
-        <p class="lead">已按你的夜巴时间重排，避免连续高强度寺庙日。支持一键切换“行程视图 / 地图视图”。</p>
-        <div class="toggle">
-          <button id="btnSchedule" class="btn active">行程视图 / Schedule View</button>
-          <button id="btnMap" class="btn">地图视图 / Map View</button>
-        </div>
-        <div id="scheduleView" class="day-list bilingual">
-          <article class="day"><h3>Day 1（2/15）到达恢复 + 老城适应</h3><div class="muted en">Arrival recovery + Old Town orientation</div>
-            <ul><li><strong>中</strong>：早上到达后先补觉，下午逛 Old Market / Pub Street。</li><li class="en"><strong>EN</strong>: Recover after overnight bus, then explore Old Market / Pub Street in the afternoon.</li>
-            <li><strong>中</strong>：晚上回青旅社交，低强度收尾。</li><li class="en"><strong>EN</strong>: Keep the first day light and social at the hostel.</li></ul></article>
-          <article class="day"><h3>Day 2 吴哥小圈核心日</h3><div class="muted en">Small Circuit core highlights</div>
-            <ul><li><strong>中</strong>：Angkor Wat 日出 → Bayon → Ta Prohm。</li><li class="en"><strong>EN</strong>: Sunrise at Angkor Wat, then Bayon and Ta Prohm.</li>
-            <li><strong>中</strong>：中午回城午休，减少暴晒和体力消耗。</li><li class="en"><strong>EN</strong>: Return to town at noon for rest and heat management.</li></ul></article>
-          <article class="day"><h3>Day 3 菜市场 + 在地生活</h3><div class="muted en">Local market + daily life</div>
-            <ul><li><strong>中</strong>：早上 Phsar Leu 菜市场，观察本地食材与日常采购。</li><li class="en"><strong>EN</strong>: Morning at Phsar Leu market for local produce and everyday life.</li>
-            <li><strong>中</strong>：下午咖啡馆、河边散步或按摩。</li><li class="en"><strong>EN</strong>: Flexible afternoon: café, riverside walk, or massage.</li></ul></article>
-          <article class="day"><h3>Day 4 吴哥大圈结构美学</h3><div class="muted en">Grand Circuit architecture day</div>
-            <ul><li><strong>中</strong>：Preah Khan → Neak Pean → Ta Som。</li><li class="en"><strong>EN</strong>: Visit Preah Khan, Neak Pean, and Ta Som.</li>
-            <li><strong>中</strong>：回城后安排轻松晚餐。</li><li class="en"><strong>EN</strong>: Easy dinner after returning to town.</li></ul></article>
-          <article class="day"><h3>Day 5 艺术主题日</h3><div class="muted en">Art-focused day</div>
-            <ul><li><strong>中</strong>：Small Art School + Khmer Kids Art Gallery。</li><li class="en"><strong>EN</strong>: Small Art School + Khmer Kids Art Gallery.</li>
-            <li><strong>中</strong>：可选 Artisans Angkor 或 Phare 表演。</li><li class="en"><strong>EN</strong>: Optional Artisans Angkor workshop or Phare show.</li></ul></article>
-          <article class="day"><h3>Day 6（2/21）弹性日 + 夜巴返程</h3><div class="muted en">Flexible day + night bus return</div>
-            <ul><li><strong>中</strong>：Banteay Srei / Tonlé Sap / 博物馆三选一。</li><li class="en"><strong>EN</strong>: Choose one: Banteay Srei / Tonlé Sap / museum day.</li>
-            <li><strong>中</strong>：晚间预留返程缓冲，建议提前到站。</li><li class="en"><strong>EN</strong>: Keep buffer time before departure and arrive early at station.</li></ul></article>
-        </div>
-        <div id="mapView" class="day-list" style="display:none">
-          <article class="day"><h3>Day 2 地图快链｜Map Quick Links</h3><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Angkor+Wat">Angkor Wat</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Bayon+Temple">Bayon</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Ta+Prohm">Ta Prohm</a></div></article>
-          <article class="day"><h3>Day 3 地图快链｜Map Quick Links</h3><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Phsar+Leu+Thom+Thmey">Phsar Leu Market</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Old+Market+Siem+Reap">Old Market</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Pub+Street+Siem+Reap">Pub Street</a></div></article>
-          <article class="day"><h3>Day 4 地图快链｜Map Quick Links</h3><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Preah+Khan+Temple">Preah Khan</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Neak+Pean">Neak Pean</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Ta+Som+Temple">Ta Som</a></div></article>
-          <article class="day"><h3>Day 5 地图快链｜Map Quick Links</h3><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Small+Art+School+Siem+Reap">Small Art School</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Khmer+Kids+Art+Gallery+Siem+Reap">Khmer Kids Art Gallery</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Artisans+Angkor+Siem+Reap">Artisans Angkor</a></div></article>
-          <article class="day"><h3>Day 6 地图快链｜Map Quick Links</h3><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Banteay+Srei">Banteay Srei</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Kampong+Phluk">Kampong Phluk</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Angkor+National+Museum">Angkor National Museum</a></div></article>
-        </div>
-      </section>
-
-      <section id="places" class="section">
-        <h2>地点资料库｜Places Database（中英双语）</h2>
-        <p class="lead">已删除 <strong>Khmer Art Studio</strong>。你可以按类别筛选并搜索关键词。</p>
-        <div class="controls">
-          <input id="placeSearch" class="search" placeholder="搜索 Search: 如 市场 / museum / art / temple" />
-          <button class="btn active" data-place-filter="all">全部 All</button>
-          <button class="btn" data-place-filter="temple">寺庙 Temple</button>
-          <button class="btn" data-place-filter="art">艺术 Art</button>
-          <button class="btn" data-place-filter="market">市场 Market</button>
-          <button class="btn" data-place-filter="history">历史 History</button>
-          <button class="btn" data-place-filter="stay">住宿 Stay</button>
-        </div>
-        <div id="placeGrid" class="grid"></div>
-      </section>
-
-      <section id="fooddb" class="section">
-        <h2>暹粒美食资料库｜Food Database（中英双语）</h2>
-        <p class="lead">按“本地早餐 / 正餐 / 夜市 / 甜品咖啡”分类，便于现场即查即走。</p>
-        <div class="controls">
-          <input id="foodSearch" class="search" placeholder="搜索 Search: amok / breakfast / market / fine dining" />
-          <button class="btn active" data-food-filter="all">全部 All</button>
-          <button class="btn" data-food-filter="local">本地 Local</button>
-          <button class="btn" data-food-filter="dining">正餐 Dining</button>
-          <button class="btn" data-food-filter="street">夜市 Street</button>
-          <button class="btn" data-food-filter="cafe">咖啡 Cafe</button>
-        </div>
-        <div id="foodGrid" class="grid"></div>
-      </section>
-
-      <section id="refs" class="section">
-        <h2>参考链接｜References（官方优先）</h2>
-        <div class="refs-grid">
-          <article class="card"><h4>吴哥门票与官方守则</h4><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.angkorenterprise.gov.kh/en">Angkor Enterprise（Official）</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.angkorenterprise.gov.kh/en/visitor-code-of-conduct">Visitor Code（Official）</a></div></article>
-          <article class="card"><h4>吴哥遗址官方介绍（APSARA）</h4><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://apsaraauthority.gov.kh/2021/06/14/angkor-wat/">Angkor Wat</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://apsaraauthority.gov.kh/2021/08/05/bayon/">Bayon</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://apsaraauthority.gov.kh/2021/08/12/ta-prohm/">Ta Prohm</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://apsaraauthority.gov.kh/2021/08/12/preah-khan-temple/">Preah Khan</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://apsaraauthority.gov.kh/2021/08/04/banteay-srei/">Banteay Srei</a></div></article>
-          <article class="card"><h4>你关心的艺术点</h4><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://smallartschool.org/">Small Art School（Official）</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://kkagallery.wixsite.com/khmerkidsartgallery">Khmer Kids Art Gallery</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://artisansdangkor.com/">Artisans Angkor（Official）</a></div></article>
-          <article class="card"><h4>历史人文官方来源</h4><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://whc.unesco.org/en/list/668/">UNESCO Angkor</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.unesco.org/en/mab/tonle-sap">UNESCO Tonlé Sap</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://angkornationalmuseum.com/">Angkor National Museum</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://apopo.org/support-us/apopo-visitor-center/">APOPO Visitor Center</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.cambodialandminemuseum.org/">Cambodia Landmine Museum</a></div></article>
-          <article class="card"><h4>住宿与交通</h4><div class="links">
-            <a class="link" target="_blank" rel="noreferrer" href="https://onederz.com/siem-reap/">Onederz Siem Reap（Official）</a>
-            <a class="link" target="_blank" rel="noreferrer" href="https://www.google.com/maps/search/?api=1&query=Larryta+Express+Siem+Reap">Larryta Bus（Map）</a></div></article>
-        </div>
-      </section>
-
-      <section id="alt" class="section">
-        <h2>备选推荐｜Alternatives（人文 / 美食 / 历史）</h2>
-        <div class="split">
-          <article class="panel bilingual">
-            <span class="label">人文与艺术 Humanistic & Art</span>
-            <ul>
-              <li><strong>中：</strong>Theam’s Gallery（当代高棉艺术）<br><span class="en"><strong>EN:</strong> Contemporary Khmer art and architecture space.</span></li>
-              <li><strong>中：</strong>Phare Circus（表演艺术 + 社会企业）<br><span class="en"><strong>EN:</strong> Storytelling performance with social impact.</span></li>
-              <li><strong>中：</strong>Artisans Angkor（传统手工艺工坊）<br><span class="en"><strong>EN:</strong> Traditional craft workshop and demonstrations.</span></li>
-            </ul>
-          </article>
-          <article class="panel bilingual">
-            <span class="label">历史与美食 History & Food</span>
-            <ul>
-              <li><strong>中：</strong>Angkor National Museum（先建历史框架）<br><span class="en"><strong>EN:</strong> Build historical context before temple visits.</span></li>
-              <li><strong>中：</strong>APOPO / Landmine Museum（近现代社会议题）<br><span class="en"><strong>EN:</strong> Understand post-war recovery and demining work.</span></li>
-              <li><strong>中：</strong>Cuisine Wat Damnak（高棉风味进阶）<br><span class="en"><strong>EN:</strong> Refined Khmer tasting experience.</span></li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <div class="warn">提示 / Note：营业时间与临时闭馆经常变动，出发当天请在官方主页或地图再次确认。</div>
-      <p class="footer">© Your Siem Reap Planner · Editable static page for GitHub Pages</p>
-    </main>
-  </div>
-
-  <script>
-    const places = [
-      {zh:"吴哥窟", en:"Angkor Wat", cat:"temple", descZh:"地标寺庙，建议安排日出时段。", descEn:"Iconic temple; best visited at sunrise.", time:"2-3h",
-        links:[["APSARA","https://apsaraauthority.gov.kh/2021/06/14/angkor-wat/"],["Map","https://www.google.com/maps/search/?api=1&query=Angkor+Wat"]]},
-      {zh:"巴戎寺", en:"Bayon", cat:"temple", descZh:"微笑佛面塔群，细节非常丰富。", descEn:"Famous smiling-face towers with dense carvings.", time:"1-1.5h",
-        links:[["APSARA","https://apsaraauthority.gov.kh/2021/08/05/bayon/"],["Map","https://www.google.com/maps/search/?api=1&query=Bayon+Temple"]]},
-      {zh:"塔普伦寺", en:"Ta Prohm", cat:"temple", descZh:"树根与遗迹交织，氛围独特。", descEn:"Tree roots and ruins create a unique atmosphere.", time:"1-1.5h",
-        links:[["APSARA","https://apsaraauthority.gov.kh/2021/08/12/ta-prohm/"],["Map","https://www.google.com/maps/search/?api=1&query=Ta+Prohm"]]},
-      {zh:"圣剑寺", en:"Preah Khan", cat:"temple", descZh:"空间层次感强，适合慢走。", descEn:"Layered architecture ideal for slower exploration.", time:"1.5-2h",
-        links:[["APSARA","https://apsaraauthority.gov.kh/2021/08/12/preah-khan-temple/"],["Map","https://www.google.com/maps/search/?api=1&query=Preah+Khan+Temple"]]},
-      {zh:"涅槃宫", en:"Neak Pean", cat:"temple", descZh:"水池与岛寺结构，节奏轻松。", descEn:"Island shrine setting with peaceful pacing.", time:"40-60m",
-        links:[["Map","https://www.google.com/maps/search/?api=1&query=Neak+Pean"]]},
-      {zh:"塔逊寺", en:"Ta Som", cat:"temple", descZh:"规模较小，适合与大圈连线。", descEn:"Compact stop that fits Grand Circuit routes.", time:"30-50m",
-        links:[["Map","https://www.google.com/maps/search/?api=1&query=Ta+Som+Temple"]]},
-      {zh:"女王宫", en:"Banteay Srei", cat:"temple", descZh:"粉红砂岩与精雕细刻，外圈首选。", descEn:"Pink sandstone and exquisite carvings.", time:"1-1.5h",
-        links:[["APSARA","https://apsaraauthority.gov.kh/2021/08/04/banteay-srei/"],["Map","https://www.google.com/maps/search/?api=1&query=Banteay+Srei"]]},
-      {zh:"普萨路菜市场", en:"Phsar Leu Thom Thmey", cat:"market", descZh:"本地居民菜市场，建议早上去。", descEn:"Local wet market; best in the early morning.", time:"1-1.5h",
-        links:[["Map","https://www.google.com/maps/search/?api=1&query=Phsar+Leu+Thom+Thmey"]]},
-      {zh:"柬埔寨制造市集", en:"Made in Cambodia Market", cat:"market", descZh:"手作与设计产品较集中。", descEn:"Concentrated local craft/design products.", time:"45-90m",
-        links:[["Facebook","https://www.facebook.com/MadeinCambodiaMarket/"],["Map","https://www.google.com/maps/search/?api=1&query=Made+in+Cambodia+Market+Siem+Reap"]]},
-      {zh:"小小艺术学校", en:"Small Art School", cat:"art", descZh:"你指定必去点，可提前询问活动安排。", descEn:"Your must-visit art stop; check programs in advance.", time:"1-2h",
-        links:[["Official","https://smallartschool.org/"],["Map","https://www.google.com/maps/search/?api=1&query=Small+Art+School+Siem+Reap"]]},
-      {zh:"高棉儿童艺术画廊", en:"Khmer Kids Art Gallery", cat:"art", descZh:"可与 Small Art School 同日安排。", descEn:"Pairs well with Small Art School on the same day.", time:"30-60m",
-        links:[["Site","https://kkagallery.wixsite.com/khmerkidsartgallery"],["Map","https://www.google.com/maps/search/?api=1&query=Khmer+Kids+Art+Gallery+Siem+Reap"]]},
-      {zh:"吴哥国家博物馆", en:"Angkor National Museum", cat:"history", descZh:"先看馆后看寺庙，理解效率更高。", descEn:"Museum-first strategy improves temple understanding.", time:"1.5-2.5h",
-        links:[["Official","https://angkornationalmuseum.com/"],["Map","https://www.google.com/maps/search/?api=1&query=Angkor+National+Museum"]]},
-      {zh:"APOPO访客中心", en:"APOPO Visitor Center", cat:"history", descZh:"了解战后排雷与公共教育。", descEn:"Learn about post-war demining and public education.", time:"1-1.5h",
-        links:[["Official","https://apopo.org/support-us/apopo-visitor-center/"],["Map","https://www.google.com/maps/search/?api=1&query=APOPO+Visitor+Center+Siem+Reap"]]},
-      {zh:"柬埔寨地雷博物馆", en:"Cambodia Landmine Museum", cat:"history", descZh:"补充近现代社会历史脉络。", descEn:"Adds modern social-historical context.", time:"1-2h",
-        links:[["Official","https://www.cambodialandminemuseum.org/"],["Map","https://www.google.com/maps/search/?api=1&query=Cambodia+Landmine+Museum"]]},
-      {zh:"Onederz暹粒青旅", en:"Onederz Siem Reap", cat:"stay", descZh:"本次住宿中心点，便于辐射全部行程。", descEn:"Your base hub for all routes.", time:"All trip",
-        links:[["Official","https://onederz.com/siem-reap/"],["Map","https://www.google.com/maps/search/?api=1&query=Onederz+Siem+Reap"]]}
-    ];
-
-    const foods = [
-      {zh:"吴哥大马纳克餐厅", en:"Cuisine Wat Damnak", cat:"dining", descZh:"高棉风味进阶，适合安排一顿仪式感晚餐。", descEn:"Refined Khmer tasting experience for a special dinner.",
-        tipZh:"建议预约", tipEn:"Reservation recommended", links:[["Official","https://www.cuisinewatdamnak.com/"],["Map","https://www.google.com/maps/search/?api=1&query=Cuisine+Wat+Damnak"]]},
-      {zh:"Haven社会企业餐厅", en:"Haven", cat:"dining", descZh:"餐饮+青年培训项目，兼具社会价值。", descEn:"Restaurant plus youth training social enterprise.",
-        tipZh:"安静用餐友好", tipEn:"Great for a calm meal", links:[["Official","https://www.haven-cambodia.com/"],["Map","https://www.google.com/maps/search/?api=1&query=Haven+Siem+Reap"]]},
-      {zh:"Chanrey Tree", en:"Chanrey Tree", cat:"dining", descZh:"高棉家常风味，环境舒适。", descEn:"Khmer home-style cuisine in a comfortable setting.",
-        tipZh:"适合午晚餐", tipEn:"Good for lunch/dinner", links:[["Map","https://www.google.com/maps/search/?api=1&query=Chanrey+Tree+Siem+Reap"]]},
-      {zh:"Old Market小吃片区", en:"Old Market Food Zone", cat:"street", descZh:"游客区但选择密度高，适合快逛快吃。", descEn:"Touristy but dense options for quick tasting.",
-        tipZh:"夜间更热闹", tipEn:"Livelier at night", links:[["Map","https://www.google.com/maps/search/?api=1&query=Old+Market+Siem+Reap"]]},
-      {zh:"Pub Street夜间餐饮带", en:"Pub Street Food Belt", cat:"street", descZh:"夜间美食与社交集中区域。", descEn:"Nighttime food and social concentration area.",
-        tipZh:"注意音量与人流", tipEn:"Expect crowds and noise", links:[["Map","https://www.google.com/maps/search/?api=1&query=Pub+Street+Siem+Reap"]]},
-      {zh:"Road 60夜市", en:"Road 60 Night Market", cat:"street", descZh:"更偏本地夜市氛围，价格友好。", descEn:"More local night-market vibe and budget options.",
-        tipZh:"建议结伴晚去", tipEn:"Best with evening company", links:[["Map","https://www.google.com/maps/search/?api=1&query=Road+60+Night+Market+Siem+Reap"]]},
-      {zh:"普萨路早餐档", en:"Phsar Leu Breakfast Stalls", cat:"local", descZh:"本地米粉、粥、烤肉类早餐集中。", descEn:"Local noodles, porridge, and grilled breakfast stalls.",
-        tipZh:"早上7-9点最佳", tipEn:"Best around 7–9 AM", links:[["Map","https://www.google.com/maps/search/?api=1&query=Phsar+Leu+Thom+Thmey"]]},
-      {zh:"高棉米粉店群", en:"Nom Banh Chok Spots", cat:"local", descZh:"典型高棉早餐，清爽耐热。", descEn:"Classic Khmer breakfast; light and heat-friendly.",
-        tipZh:"早午间售罄快", tipEn:"Often sold out early", links:[["Map","https://www.google.com/maps/search/?api=1&query=Nom+Banh+Chok+Siem+Reap"]]},
-      {zh:"Amok体验餐厅检索", en:"Fish Amok Search Hub", cat:"local", descZh:"快速找“Amok”评分高的附近餐厅。", descEn:"Quick map search for top-rated fish amok nearby.",
-        tipZh:"看近30天评价", tipEn:"Check latest 30-day reviews", links:[["Map Search","https://www.google.com/maps/search/?api=1&query=Fish+Amok+Siem+Reap"]]},
-      {zh:"Little Red Fox Espresso", en:"Little Red Fox Espresso", cat:"cafe", descZh:"独旅友好的早午餐与咖啡点。", descEn:"Solo-traveler-friendly brunch and coffee stop.",
-        tipZh:"适合写行程", tipEn:"Good for planning/journaling", links:[["Map","https://www.google.com/maps/search/?api=1&query=Little+Red+Fox+Espresso+Siem+Reap"]]},
-      {zh:"Sister Srey Cafe", en:"Sister Srey Cafe", cat:"cafe", descZh:"轻食与咖啡，环境稳定。", descEn:"Reliable cafe for light meals and coffee.",
-        tipZh:"白天工作友好", tipEn:"Daytime laptop-friendly", links:[["Map","https://www.google.com/maps/search/?api=1&query=Sister+Srey+Cafe+Siem+Reap"]]}
-    ];
-
-    function cardTemplate(item, catLabel){
-      return `<article class="card"><h4>${item.zh}</h4><div class="name-en">${item.en}</div>
-      <div class="meta-line">${catLabel} · 建议停留/体验: ${item.time || item.tipZh || "-"}</div>
-      <p><strong>中:</strong> ${item.descZh}<br><span class="name-en"><strong>EN:</strong> ${item.descEn}</span></p>
-      ${item.tipZh ? `<div class="meta-line">Tips: ${item.tipZh} / ${item.tipEn}</div>` : ""}
-      <div class="links">${item.links.map(([txt,url])=>`<a class="link" target="_blank" rel="noreferrer" href="${url}">${txt}</a>`).join("")}</div></article>`;
-    }
-
-    const placeGrid = document.getElementById("placeGrid");
-    const placeSearch = document.getElementById("placeSearch");
-    const placeBtns = [...document.querySelectorAll("[data-place-filter]")];
-    let placeFilter = "all";
-    const placeCatLabel = c => ({temple:"寺庙 Temple",art:"艺术 Art",market:"市场 Market",history:"历史 History",stay:"住宿 Stay"})[c] || c;
-    function renderPlaces(){
-      const q = placeSearch.value.trim().toLowerCase();
-      const rows = places.filter(p => (placeFilter==="all" || p.cat===placeFilter) &&
-        (!q || `${p.zh} ${p.en} ${p.descZh} ${p.descEn}`.toLowerCase().includes(q)));
-      placeGrid.innerHTML = rows.length ? rows.map(p=>cardTemplate(p, placeCatLabel(p.cat))).join("") : `<article class="card">没有匹配结果 / No matches.</article>`;
-    }
-    placeBtns.forEach(b=>b.addEventListener("click", ()=>{placeBtns.forEach(x=>x.classList.remove("active"));b.classList.add("active");placeFilter=b.dataset.placeFilter;renderPlaces();}));
-    placeSearch.addEventListener("input", renderPlaces);
-
-    const foodGrid = document.getElementById("foodGrid");
-    const foodSearch = document.getElementById("foodSearch");
-    const foodBtns = [...document.querySelectorAll("[data-food-filter]")];
-    let foodFilter = "all";
-    const foodCatLabel = c => ({local:"本地 Local",dining:"正餐 Dining",street:"夜市 Street",cafe:"咖啡 Cafe"})[c] || c;
-    function renderFoods(){
-      const q = foodSearch.value.trim().toLowerCase();
-      const rows = foods.filter(f => (foodFilter==="all" || f.cat===foodFilter) &&
-        (!q || `${f.zh} ${f.en} ${f.descZh} ${f.descEn} ${f.tipZh||""} ${f.tipEn||""}`.toLowerCase().includes(q)));
-      foodGrid.innerHTML = rows.length ? rows.map(f=>cardTemplate(f, foodCatLabel(f.cat))).join("") : `<article class="card">没有匹配结果 / No matches.</article>`;
-    }
-    foodBtns.forEach(b=>b.addEventListener("click", ()=>{foodBtns.forEach(x=>x.classList.remove("active"));b.classList.add("active");foodFilter=b.dataset.foodFilter;renderFoods();}));
-    foodSearch.addEventListener("input", renderFoods);
-
-    const btnSchedule = document.getElementById("btnSchedule");
-    const btnMap = document.getElementById("btnMap");
-    const scheduleView = document.getElementById("scheduleView");
-    const mapView = document.getElementById("mapView");
-    btnSchedule.addEventListener("click", ()=>{btnSchedule.classList.add("active");btnMap.classList.remove("active");scheduleView.style.display="grid";mapView.style.display="none";});
-    btnMap.addEventListener("click", ()=>{btnMap.classList.add("active");btnSchedule.classList.remove("active");scheduleView.style.display="none";mapView.style.display="grid";});
-
-    const topTabs = [...document.querySelectorAll(".tab-btn")];
-    topTabs.forEach(tab=>tab.addEventListener("click", ()=>{
-      const id=tab.dataset.target, sec=document.getElementById(id); if(sec){sec.scrollIntoView({behavior:"smooth", block:"start"});}
-      topTabs.forEach(t=>t.classList.remove("active")); tab.classList.add("active");
-    }));
-    const sectionIds = ["plan","places","fooddb","refs","alt"];
-    window.addEventListener("scroll", ()=>{
-      let current="plan";
-      for(const id of sectionIds){const rect=document.getElementById(id).getBoundingClientRect(); if(rect.top<=140) current=id;}
-      topTabs.forEach(t=>t.classList.toggle("active", t.dataset.target===current));
-    });
-
-    renderPlaces(); renderFoods();
-  </script>
-</body>
-</html>
